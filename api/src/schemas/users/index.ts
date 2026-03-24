@@ -3,7 +3,7 @@ import z from "zod"
 export const UserCreateSchemaCreate = z.object({
   name: z.string(),
   email: z.email(),
-  image: z.string(),
+  image: z.string().nullable(),
   password: z.string()
 })
 
@@ -12,6 +12,6 @@ export const UserCreateSchemaResponse = z.object({
   refreshToken: z.string(),
   name: z.string(),
   userId: z.string(),
-  image: z.string(),
+  image: z.string().nullable(),
   message: z.string()
 })

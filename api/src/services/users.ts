@@ -42,7 +42,7 @@ export class UsersService {
       refreshToken: refreshToken!,
       userId: createuser.userId,
       name: createuser.name,
-      image: createuser.image ?? "",
+      image: createuser.image,
       message: `Bem-vindo(a) ${createuser.name}`
     }
   }

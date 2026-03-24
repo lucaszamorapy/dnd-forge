@@ -10,7 +10,7 @@ export interface IRegisterUserOutputDto {
   refreshToken: string,
   userId: string,
   name: string,
-  image: string
+  image: string | null
   message: string
 }
 
