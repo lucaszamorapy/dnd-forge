@@ -6,6 +6,7 @@ import fastifySwagger from '@fastify/swagger';
 import fastifyApiReference from '@scalar/fastify-api-reference';
 import { jsonSchemaTransform, serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
+import { usersRoutes } from './routes/users/index.js';
 
 const app = Fastify({
   logger: true
@@ -78,6 +79,9 @@ app.withTypeProvider<ZodTypeProvider>().route({
     return { message: "Hello world" }
   }
 });
+
+//Routes
+await app.register(usersRoutes, { prefix: "/users" });
 
 // Run the server!
 try {
