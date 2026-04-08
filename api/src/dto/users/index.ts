@@ -1,7 +1,7 @@
 export interface IRegisterUserInputDto {
   name: string,
   email: string,
-  image?: string,
+  image: string | null,
   password: string
 }
 
