@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,12 +8,171 @@ datasource db {
 }
 
 model Users {
-  userId        String   @id @default(uuid())
+  userId    String   @id @default(uuid())
   email     String   @unique
   name      String
   image     String?
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  characters Characters[]
+  campaigns  Campaigns[]
 }
 
+model Characters {
+  characterId String  @id @default(uuid())
+  name        String?
+  userId      String?
+
+  race       String?
+  class      String?
+  level      Int?
+  background String?
+  alignment  String?
+
+  experiencePoints Int?
+
+  strength     Int?
+  dexterity    Int?
+  constitution Int?
+  intelligence Int?
+  wisdom       Int?
+  charisma     Int?
+
+  strengthMod     Int?
+  dexterityMod    Int?
+  constitutionMod Int?
+  intelligenceMod Int?
+  wisdomMod       Int?
+  charismaMod     Int?
+
+  armorClass Int?
+  initiative Int?
+  speed      String?
+
+  hitPointsMax     Int?
+  hitPointsCurrent Int?
+  hitDice          String?
+
+  proficiencyBonus Int?
+
+  saveStrength     Int?
+  saveDexterity    Int?
+  saveConstitution Int?
+  saveIntelligence Int?
+  saveWisdom       Int?
+  saveCharisma     Int?
+
+  skillAcrobatics     Int?
+  skillArcana         Int?
+  skillAthletics      Int?
+  skillPerformance    Int?
+  skillDeception      Int?
+  skillStealth        Int?
+  skillHistory        Int?
+  skillIntimidation   Int?
+  skillInsight        Int?
+  skillInvestigation  Int?
+  skillAnimalHandling Int?
+  skillMedicine       Int?
+  skillNature         Int?
+  skillPerception     Int?
+  skillPersuasion     Int?
+  skillSleightOfHand  Int?
+  skillReligion       Int?
+  skillSurvival       Int?
+
+  passivePerception Int?
+
+  age    Int?
+  height String?
+  weight String?
+
+  eyes String?
+  skin String?
+  hair String?
+
+  languages           String?
+  armorProficiencies  String?
+  weaponProficiencies String?
+  toolProficiencies   String?
+
+  user Users? @relation(fields: [userId], references: [userId])
+
+  attacks   CharacterAttacks[]
+  features  CharacterFeatures[]
+  equipment CharacterEquipment[]
+  campaigns CampaignCharacters[]
+}
+
+model CharacterAttacks {
+  attackId   String  @id @default(uuid())
+  characterId String?
+
+  name       String?
+  bonus      Int?
+  damage     String?
+  damageType String?
+
+  character Characters? @relation(fields: [characterId], references: [characterId])
+}
+
+model CharacterFeatures {
+  featureId   String  @id @default(uuid())
+  characterId String?
+
+  featureName String?
+  description String?
+
+  character Characters? @relation(fields: [characterId], references: [characterId])
+}
+
+model CharacterEquipment {
+  equipmentId String  @id @default(uuid())
+  characterId String?
+
+  itemName String?
+  quantity Int?
+
+  character Characters? @relation(fields: [characterId], references: [characterId])
+}
+
+model Campaigns {
+  campaignId String  @id @default(uuid())
+  userId     String?
+
+  inviteCode String? @unique
+  title      String?
+  description String?
+  worldSetting String?
+  coverImage  String?
+  maxPlayers  Int?
+
+  status CampaignStatus?
+
+  createdAt DateTime @default(now())
+
+  user Users? @relation(fields: [userId], references: [userId])
+
+  characters CampaignCharacters[]
+}
+
+model CampaignCharacters {
+  campaignId String
+  characterId String
+
+  joinedAt DateTime?
+  isActive Boolean @default(true)
+
+  campaign  Campaigns @relation(fields: [campaignId], references: [campaignId])
+  character Characters @relation(fields: [characterId], references: [characterId])
+
+  @@id([campaignId, characterId])
+}
+
+enum CampaignStatus {
+  Nao_Iniciada
+  Iniciada
+  Finalizada
+}
