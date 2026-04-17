@@ -11,9 +11,8 @@ export const usersRoutes = async (app: FastifyInstance) => {
     url: "/",
     schema: {
       operationId: "createUser",
-      tags: ["User"],
-      summary: "Create user account",
-      body: UserCreateSchemaCreate,
+      tags: ["Usuário"],
+      summary: "Criar conta de usuário",
       response: {
         201: UserCreateSchemaResponse,
         400: ErrorSchema,
@@ -23,7 +22,7 @@ export const usersRoutes = async (app: FastifyInstance) => {
       },
     },
     handler: async (request, reply) => {
-      return await usersControllers.post(request.body, reply)
+      return await usersControllers.post(request, reply)
     },
   });
 }

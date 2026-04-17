@@ -13,8 +13,8 @@ model Users {
   name      String
   image     String?
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
 
   characters Characters[]
   campaigns  Campaigns[]
@@ -23,6 +23,7 @@ model Users {
 model Characters {
   characterId String  @id @default(uuid())
   name        String?
+  image       String?
   userId      String?
 
   race       String?
@@ -98,6 +99,9 @@ model Characters {
   weaponProficiencies String?
   toolProficiencies   String?
 
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
   user Users? @relation(fields: [userId], references: [userId])
 
   attacks   CharacterAttacks[]
@@ -107,13 +111,16 @@ model Characters {
 }
 
 model CharacterAttacks {
-  attackId   String  @id @default(uuid())
+  attackId    String  @id @default(uuid())
   characterId String?
 
   name       String?
   bonus      Int?
   damage     String?
   damageType String?
+
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
 
   character Characters? @relation(fields: [characterId], references: [characterId])
 }
@@ -125,6 +132,9 @@ model CharacterFeatures {
   featureName String?
   description String?
 
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
   character Characters? @relation(fields: [characterId], references: [characterId])
 }
 
@@ -135,6 +145,9 @@ model CharacterEquipment {
   itemName String?
   quantity Int?
 
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
   character Characters? @relation(fields: [characterId], references: [characterId])
 }
 
@@ -142,16 +155,17 @@ model Campaigns {
   campaignId String  @id @default(uuid())
   userId     String?
 
-  inviteCode String? @unique
-  title      String?
-  description String?
+  inviteCode   String? @unique
+  title        String?
+  description  String?
   worldSetting String?
-  coverImage  String?
-  maxPlayers  Int?
+  coverImage   String?
+  maxPlayers   Int?
 
   status CampaignStatus?
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
 
   user Users? @relation(fields: [userId], references: [userId])
 
@@ -159,13 +173,16 @@ model Campaigns {
 }
 
 model CampaignCharacters {
-  campaignId String
+  campaignId  String
   characterId String
 
   joinedAt DateTime?
-  isActive Boolean @default(true)
+  isActive Boolean   @default(true)
 
-  campaign  Campaigns @relation(fields: [campaignId], references: [campaignId])
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
+  campaign  Campaigns  @relation(fields: [campaignId], references: [campaignId])
   character Characters @relation(fields: [characterId], references: [characterId])
 
   @@id([campaignId, characterId])
@@ -173,6 +190,6 @@ model CampaignCharacters {
 
 enum CampaignStatus {
   Nao_Iniciada
-  Iniciada
+  Andamento
   Finalizada
 }

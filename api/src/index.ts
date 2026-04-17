@@ -5,7 +5,10 @@ import fastifyCors from '@fastify/cors';
 import fastifySwagger from '@fastify/swagger';
 import fastifyApiReference from '@scalar/fastify-api-reference';
 import { jsonSchemaTransform, serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod'
-import z from 'zod'
+import fastifyMultipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
+import fs from "fs";
+import path from "path";
 import { usersRoutes } from './routes/users/index.js';
 
 const app = Fastify({
@@ -51,6 +54,15 @@ await app.register(fastifyCors, {
   credentials: true,
 });
 
+await app.register(fastifyMultipart, {
+  attachFieldsToBody: true, //usado para aceitar MultipartFile no body da requisição
+});
+
+await app.register(fastifyStatic, {
+  root: path.join(process.cwd(), "uploads"),
+  prefix: "/uploads/", // URL pública: http://localhost:802/uploads/...
+});
+
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
@@ -63,27 +75,18 @@ app.withTypeProvider<ZodTypeProvider>().route({
   },
 });
 
-app.withTypeProvider<ZodTypeProvider>().route({
-  method: 'GET',
-  url: "/",
-  schema: {
-    description: "Hello world",
-    tags: ["Hello world"],
-    response: {
-      200: z.object({
-        message: z.string(),
-      })
-    }
-  },
-  handler: () => {
-    return { message: "Hello world" }
-  }
-});
 
 //Routes
 await app.register(usersRoutes, { prefix: "/users" });
 
-// Run the server!
+//Criar pastas necessárias para o upload de arquivos
+const REQUIRED_DIRS = ["uploads/users", "uploads/characters"];
+for (const dir of REQUIRED_DIRS) {
+  const fullPath = path.join(process.cwd(), dir);
+  fs.mkdirSync(fullPath, { recursive: true });
+  console.log(`Pasta criada: ${dir}`);
+}
+
 try {
   await app.listen({ port: Number(process.env.PORT) })
 } catch (err) {
