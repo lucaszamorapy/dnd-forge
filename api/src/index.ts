@@ -60,7 +60,7 @@ await app.register(fastifyMultipart, {
 
 await app.register(fastifyStatic, {
   root: path.join(process.cwd(), "uploads"),
-  prefix: "/uploads/", // URL pública: http://localhost:802/uploads/...
+  prefix: "/uploads/", // URL pública: http://localhost:8022/uploads/...
 });
 
 
