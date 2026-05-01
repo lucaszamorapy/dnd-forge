@@ -51,6 +51,7 @@ export const usersRoutes = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "PUT",
     url: "/:id",
+    onRequest: [app.authenticate],
     schema: {
       operationId: "putUser",
       tags: ["Usuário"],
@@ -72,6 +73,7 @@ export const usersRoutes = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "DELETE",
     url: "/:id",
+    onRequest: [app.authenticate],
     schema: {
       operationId: "deleteUser",
       tags: ["Usuário"],

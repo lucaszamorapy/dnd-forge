@@ -1,4 +1,3 @@
-// Import the framework and instantiate it
 import Fastify from 'fastify'
 import "dotenv/config";
 import fastifyCors from '@fastify/cors';
@@ -10,6 +9,7 @@ import fastifyStatic from "@fastify/static";
 import fs from "fs";
 import path from "path";
 import { usersRoutes } from './routes/users/index.js';
+import { authPlugin } from './plugins/auth.js';
 
 const app = Fastify({
   logger: true
@@ -18,6 +18,7 @@ const app = Fastify({
 app.setValidatorCompiler(validatorCompiler) //Valida entrada usando Zod
 app.setSerializerCompiler(serializerCompiler) //Valida saída usando Zod
 
+//Pluigins
 //plugin do swagger para gerar a documentação da api, usando o jsonSchemaTransform para transformar os schemas do zod em json schema
 await app.register(fastifySwagger, {
   openapi: {
@@ -63,6 +64,11 @@ await app.register(fastifyStatic, {
   prefix: "/uploads/", // URL pública: http://localhost:8022/uploads/...
 });
 
+await app.register(authPlugin)
+
+
+//Routes
+await app.register(usersRoutes, { prefix: "/users" });
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
@@ -75,9 +81,6 @@ app.withTypeProvider<ZodTypeProvider>().route({
   },
 });
 
-
-//Routes
-await app.register(usersRoutes, { prefix: "/users" });
 
 //Criar pastas necessárias para o upload de arquivos
 const REQUIRED_DIRS = ["uploads/users", "uploads/characters"];
