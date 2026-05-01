@@ -69,3 +69,14 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IAuthRefreshTokenOutputDto {
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+  name: string;
+  email: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

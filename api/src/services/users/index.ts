@@ -1,7 +1,7 @@
 import "dotenv/config"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { ILoginInputDto, IRegisterUserInputDto, IRegisterUserOutputDto, IUpdateUserFullInputDto, IUpdateUserFullOutputDto, IUpdateUserImageInputDto, IUpdateUserImageOutputDto, IUpdateUserInputDto, IUpdateUserOutputDto, IUser } from "../../dto/users/index.js";
+import { IAuthRefreshTokenOutputDto, ILoginInputDto, IRegisterUserInputDto, IRegisterUserOutputDto, IUpdateUserFullInputDto, IUpdateUserFullOutputDto, IUpdateUserImageInputDto, IUpdateUserImageOutputDto, IUpdateUserInputDto, IUpdateUserOutputDto, IUser } from "../../dto/users/index.js";
 import { CustomError } from "../../errors/index.js";
 import { prisma } from "../../lib/db.js";
 import { GeralService } from "../global/index.js";
@@ -10,18 +10,12 @@ import { IDeleteOutputDto } from "../../dto/global/index.js";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN as
-  | "15m"
-  | "1h"
-  | "1d"
+  | "3h"
   | number;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN as
-  | "15m"
-  | "1h"
-  | "1d"
+  | "7d"
   | number;
-
-
 
 export class UsersService {
 
@@ -172,8 +166,32 @@ export class UsersService {
     }
   }
 
+  async authRefreshToken(token: string): Promise<IAuthRefreshTokenOutputDto> {
+    const valid = this.decodeToken(token, true);
+    const userId = typeof valid.sub === "function"
+      ? valid.sub()
+      : valid.sub;
+    if (!userId) {
+      throw new CustomError("Token inválido", "BAD_REQUEST");
+    }
+    const user = await prisma.users.findFirst({ where: { userId: userId } });
+    if (!user) {
+      throw new CustomError("Usuário não encontrado", "NOT_FOUND");
+    }
+    const accessToken = this.accessToken(user)
+    return {
+      accessToken: accessToken,
+      refreshToken: token,
+      userId: user.userId,
+      name: user.name,
+      image: user.image,
+      email: user.email,
+      createdAt: GeralService.toBRDate(user.createdAt),
+      updatedAt: GeralService.toBRDate(user.updatedAt),
+    }
+  }
+
   accessToken(user: IUser) {
-    if (!user) return;
     const accessToken = jwt.sign(
       { sub: user.userId, email: user.email },
       JWT_SECRET,
@@ -182,7 +200,7 @@ export class UsersService {
     return accessToken
   }
   refreshToken(user: IUser) {
-    if (!user) return;
+
     const refreshToken = jwt.sign(
       { sub: user.userId },
       JWT_REFRESH_SECRET,
@@ -190,8 +208,9 @@ export class UsersService {
     );
     return refreshToken
   }
-  decodeToken(token: string) {
-    const decoded = jwt.verify(token, JWT_SECRET);
+  decodeToken(token: string, isRefresh: boolean = false) {
+    console.log(JWT_REFRESH_EXPIRES_IN)
+    const decoded = jwt.verify(token, !isRefresh ? JWT_SECRET : JWT_REFRESH_SECRET);
     return decoded;
   }
 }

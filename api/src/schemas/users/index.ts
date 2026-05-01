@@ -37,3 +37,14 @@ export const UserUpdateSchemaResponse = z.object({
   image: z.string().nullable(),
 });
 
+export const AuthRefreshTokenSchemaResponse = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  name: z.string(),
+  userId: z.string(),
+  email: z.email(),
+  image: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+

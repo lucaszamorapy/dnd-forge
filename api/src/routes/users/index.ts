@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { UsersController } from "../../controllers/users/index.js";
-import { LoginSchema, UserCreateSchemaResponse, UserUpdateSchema, UserUpdateSchemaResponse } from "../../schemas/users/index.js";
+import { AuthRefreshTokenSchemaResponse, LoginSchema, UserCreateSchemaResponse, UserUpdateSchema, UserUpdateSchemaResponse } from "../../schemas/users/index.js";
 import { ErrorSchema } from "../../schemas/errors/index.js";
 import { DataDeleteSchemaResponse } from "../../schemas/global/index.js";
 
@@ -36,7 +36,7 @@ export const usersRoutes = async (app: FastifyInstance) => {
       summary: "Logar usuário no sistema",
       body: LoginSchema,
       response: {
-        201: UserCreateSchemaResponse,
+        200: UserCreateSchemaResponse,
         400: ErrorSchema,
         401: ErrorSchema,
         404: ErrorSchema,
@@ -88,6 +88,26 @@ export const usersRoutes = async (app: FastifyInstance) => {
     },
     handler: async (request, reply) => {
       return await usersControllers.delete(request, reply)
+    },
+  });
+
+  app.withTypeProvider<ZodTypeProvider>().route({
+    method: "GET",
+    url: "/auth/refresh-token",
+    schema: {
+      operationId: "refreshTokenUser",
+      tags: ["Usuário"],
+      summary: "Atualizar o login do usuário",
+      response: {
+        200: AuthRefreshTokenSchemaResponse,
+        400: ErrorSchema,
+        401: ErrorSchema,
+        404: ErrorSchema,
+        500: ErrorSchema,
+      },
+    },
+    handler: async (request, reply) => {
+      return await usersControllers.getRefreshToken(request, reply)
     },
   });
 }

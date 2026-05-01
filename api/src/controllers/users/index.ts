@@ -157,4 +157,32 @@ export class UsersController {
       });
     }
   }
+  async getRefreshToken(req: FastifyRequest, reply: FastifyReply) {
+    try {
+      const authorization = req.headers.authorization;
+      if (!authorization) return reply.code(401).send({ error: 'Token não fornecido', code: "UNAUTHORIZED" })
+      const token = authorization.split(" ")[1];
+      const res = await usersService.authRefreshToken(token)
+      return reply.status(200).send(res)
+    } catch (error) {
+
+      this.app.log.error(error);
+      if (error instanceof CustomError) {
+        return reply.status(error.number).send({
+          error: error.message,
+          code: error.code,
+        });
+      }
+      if (error instanceof Error) {
+        return reply.status(500).send({
+          error: error.message,
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+      return reply.status(500).send({
+        error: "Internal server error",
+        code: "INTERNAL_SERVER_ERROR",
+      });
+    }
+  }
 }
