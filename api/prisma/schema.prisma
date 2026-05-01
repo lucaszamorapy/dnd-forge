@@ -13,6 +13,8 @@ model Users {
   name      String
   image     String?
   password  String
+  codeVerification Int?
+  expirationAt DateTime?
   createdAt DateTime @default(now()) @db.DateTime(0)
   updatedAt DateTime @updatedAt @db.DateTime(0)
 
