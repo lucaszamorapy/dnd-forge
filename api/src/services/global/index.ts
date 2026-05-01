@@ -2,7 +2,10 @@ import fs from "fs/promises";
 import path from "path";
 import { IUploadFileInputDto } from "../../dto/upload/index.js";
 import moment from "moment-timezone";
+import nodemailer from 'nodemailer'
 import { CustomError } from "../../errors/index.js";
+import { resetPasswordTemplate } from "../../templates/emails/reset-password.js";
+import { EmailTemplate, SendEmailOptions } from "../../dto/global/index.js";
 
 export class GeralService {
   static async uploadFile(params: IUploadFileInputDto): Promise<string> {
@@ -45,5 +48,27 @@ export class GeralService {
 
   static toBRDate(date: Date): string {
     return moment(date).tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm:ss")
+  }
+
+  static async sendEmail(params: SendEmailOptions) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+    const templates: Record<EmailTemplate, (data: any) => string> = {
+      'reset-password': (data) => resetPasswordTemplate(data.name, data.codeVerification),
+    }
+    const html = templates[params.template](params.data)
+
+    await transporter.sendMail({
+      from: `"Taverna do Barik" <${process.env.SMTP_USER}>`,
+      to: params.to,
+      subject: params.subject,
+      html,
+    })
   }
 }
